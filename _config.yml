@@ -5,7 +5,7 @@
 url: "https://zhaoguangqiang.github.io"
 enforce_ssl: "zhaoguangqiang.github.io"
 # Base URL (https://kuoe0.github.io{/baseurl})
-baseurl: "/harmono"
+baseurl: ""
 
 # Site Title
 title: Harmono
@@ -19,9 +19,9 @@ harmono:
   google_analytics_key: UA-xxxx-x
   # Profile links, leave blank to ignore
   social:
-    email:    your@email.address
+    email:    zhaoguangqiang12@gmail.com
     linkedin: linkedin_name
-    github:   github_name
+    github:   zhaoguangqiang
     twitter:  twitter_name
     facebook: facebook_name
     gplus:    gplus_name
