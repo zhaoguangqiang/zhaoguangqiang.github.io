@@ -1,0 +1,80 @@
+# Harmono Jekyll theme general configurations
+
+# Site URL
+# url: https://kuoe0.github.io
+url: "https://zhaoguangqiang.github.io"
+enforce_ssl: "zhaoguangqiang.github.io"
+# Base URL (https://kuoe0.github.io{/baseurl})
+baseurl: "/harmono"
+
+# Site Title
+title: Harmono
+# Little description about your site
+description: Harmono is free responsive jekyll theme based on harmony.
+
+# Harmono theme configuration. Please change accordingly.
+harmono:
+  basetheme: theme-base-01 # pre defined thmes are darken, blue-water, redish.
+  # Google Analytics key, leave blank to ignore
+  google_analytics_key: UA-xxxx-x
+  # Profile links, leave blank to ignore
+  social:
+    email:    your@email.address
+    linkedin: linkedin_name
+    github:   github_name
+    twitter:  twitter_name
+    facebook: facebook_name
+    gplus:    gplus_name
+
+  page_list:
+    - About
+    - Archive
+    - FAQ
+
+  # Toggle disclaimer in footer
+  show_disclaimer: true
+
+  # Toggle comment system
+  comment: true
+  # Comment system provider
+  disqus:
+    short_name: harmono
+
+# Conversion / Build settings
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter_opts:
+    # Rouge Options › https://github.com/jneen/rouge#full-options
+    css_class: 'highlight'
+    #line_numbers: true # bad idea, spans don't need linenos and would inherit this option
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true
+      start_line: 1
+
+# source code highlight
+highlighter: rouge # must be rouge if using Jekyll 3.0+
+
+# Permalinks
+permalink: "/posts/:year/:month/:day/:title/"
+
+exclude:
+  - CNAME
+  - Gemfile
+  - Rakefile
+  - README.md
+  - .gitignore
+  - .sass-cache
+  - Gemfile.lock
+
+# Sass conversion configs
+sass:
+  sass_dir: assets/css/_sass
+  style: :compressed
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap

@@ -1,0 +1,10 @@
+<ul id="header-link">
+  {% for p in site.harmono.page_list %}
+  {% if forloop.index != 1 %}
+  <span class="header-seperator">/</span>
+  {% endif %}
+  <li id="header-{{ p | downcase }}">
+    <a href="{{ p | downcase | prepend: '/' | prepend: site.baseurl | prepend: site.url }}/">{{ p }}</a>
+  </li>
+  {% endfor %}
+</ul>

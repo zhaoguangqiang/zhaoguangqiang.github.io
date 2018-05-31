@@ -1,0 +1,47 @@
+---
+layout:   default
+homepage: true
+---
+{% include header.html %}
+
+<div id="home" class="page-content wc-container">
+  <div class="posts">
+
+    {% for post in site.posts limit:10 %}
+    <div class="post">
+      <h3 class="post-title">
+        <a href="{{ post.url | prepend: site.baseurl | prepend: site.url }}">
+          {{ post.title }}
+        </a>
+      </h3>
+
+      <p class="post-meta">
+      {% if post.categories.size > 0 %}
+      <span class="categories">
+        {{ post.categories | array_to_sentence_string }}
+      </span> |
+      {% endif %}
+      <span class="post-date">
+        {{ post.date | date: "%b %-d, %Y" }}
+      </span>
+      </p>
+
+      <div class="post-preview">
+        {% if post.image %}
+        <div class="thumb-photo-block">
+          <img class="thumb-photo" src="{{ post.image }}" />
+        </div>
+        {% endif %}
+        <div class="post-content-block">
+          <p class="post-excerpt">{{ post.excerpt | strip_html }}</p>
+          <a href="{{ post.url | prepend: site.baseurl | prepend: site.url }}" title="{{ post.title }}"> Read More </a>
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+
+{% include footer.html %}
