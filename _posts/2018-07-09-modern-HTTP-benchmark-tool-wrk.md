@@ -3,7 +3,7 @@ layout:  post
 title:   "Modern HTTP benchmarking tool -- wrk"
 date:    2018-07-09
 tags:    ["feature photo"]
-image:   "https://zhaoguangqiang.github.io/posts/img/wrk_title.jpg"
+image:   "https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/wrk_title.jpg"
 ---
 
 Modern HTTP benchmarking tool -- wrk
@@ -122,23 +122,23 @@ Modern HTTP benchmarking tool -- wrk
       wrk -i2 -t2 -c100 -d5M https://www.baidu.com --latency
       在5M内，由2个线程并发100去访问baidu网站，并在最后将每两秒的rps依次输出，并绘制成图表。
 
-![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/wrk_param.png)
-![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/wrk_result.png)
-![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/wrk_latency.png)
-![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/wrk_rps_chart.png)
-![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/wrk_latency_chart.png)
-![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/wrk_result_chart.png)
+![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/wrk_param.png)
+![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/wrk_result.png)
+![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/wrk_latency.png)
+![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/wrk_rps_chart.png)
+![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/wrk_latency_chart.png)
+![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/wrk_result_chart.png)
 
 7.wrk架构
 ---
 #### 1) 整体架构:
 
 由与cpu核心数量一致的线程数构成(保证了wrk在高负载情况下的cpu充分使用)，所有线程平均分配并发数，并对应一个event loop，将所需要监控的event添加到异步IO(epoll)中，由异步IO监控event的状态，当event状态变化后，由event loop作为载体取出，并调用相关函数对数据做处理。
-![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/wrk-architecture-structure.png)
+![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/wrk-architecture-structure.png)
 
 #### 2) lua模块
 
-![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/wrk-lua.png)
+![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/wrk-lua.png)
 
 wrk的全局属性
 
@@ -237,25 +237,25 @@ Done阶段
 ##### 1) 阻塞 I/O（blocking IO）
 在IO执行的两个阶段都被block
 
-![blockingIO](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/blockingIO.png)
+![blockingIO](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/blockingIO.png)
 
 ##### 2) 非阻塞 I/O（nonblocking IO）
 用户进程需要不断的主动询问kernel数据
 
-![nonblockingIO](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/nonblockingIO.png)
+![nonblockingIO](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/nonblockingIO.png)
 
 ##### 3) I/O 多路复用（IO multiplexing）
 通过一种机制一个进程能同时等待多个文件描述符，而这些文件描述符（套接字描述符）其中的任意一个进入读就绪状态,函数就可以返回
 
-![IOmultiplexing](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/IOmultiplexing.png)
+![IOmultiplexing](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/IOmultiplexing.png)
 
 ##### 4) 异步 I/O（asynchronous IO）
 通过信号通知操作完成，不存在阻塞状态
 
-![asynchronousIO](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/asynchronousIO.png)
+![asynchronousIO](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/asynchronousIO.png)
 
 ##### 5) I/O比较
-![IOModel](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/IOModel.png)
+![IOModel](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/IOModel.png)
 
 ##### 6) 各类异步I/O差异
-![selectPollEpoll](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/selectPollEpoll.png)
+![selectPollEpoll](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/selectPollEpoll.png)
