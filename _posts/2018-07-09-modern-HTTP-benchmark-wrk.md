@@ -97,11 +97,11 @@ Modern HTTP benchmarking tool--wrk
 #### 1) 整体架构:
 
 由与cpu核心数量一致的线程数构成(保证了wrk在高负载情况下的cpu充分使用)，所有线程平均分配并发数，并对应一个event loop，将所需要监控的event添加到异步IO(epoll)中，由异步IO监控event的状态，当event状态变化后，由event loop作为载体取出，并调用相关函数对数据做处理。
-![alt](./img/wrk-architecture-structure.png)
+![alt](img/wrk-architecture-structure.png)
 
 #### 2) lua模块
 
-![alt](./img/wrk-lua.png)
+![alt](img/wrk-lua.png)
 
 wrk的全局属性
 
@@ -200,25 +200,25 @@ Done阶段
 ##### 1) 阻塞 I/O（blocking IO）
 在IO执行的两个阶段都被block
 
-![blockingIO](./img/blockingIO.png)
+![blockingIO](img/blockingIO.png)
 
 ##### 2) 非阻塞 I/O（nonblocking IO）
 用户进程需要不断的主动询问kernel数据
 
-![nonblockingIO](./img/nonblockingIO.png)
+![nonblockingIO](img/nonblockingIO.png)
 
 ##### 3) I/O 多路复用（IO multiplexing）
 通过一种机制一个进程能同时等待多个文件描述符，而这些文件描述符（套接字描述符）其中的任意一个进入读就绪状态,函数就可以返回
 
-![IOmultiplexing](./img/IOmultiplexing.png)
+![IOmultiplexing](img/IOmultiplexing.png)
 
 ##### 4) 异步 I/O（asynchronous IO）
 通过信号通知操作完成，不存在阻塞状态
 
-![asynchronousIO](./img/asynchronousIO.png)
+![asynchronousIO](img/asynchronousIO.png)
 
 ##### 5) I/O比较
-![IOModel](./img/IOModel.png)
+![IOModel](img/IOModel.png)
 
 ##### 6) 各类异步I/O差异
-![selectPollEpoll](./img/selectPollEpoll.png)
+![selectPollEpoll](img/selectPollEpoll.png)
