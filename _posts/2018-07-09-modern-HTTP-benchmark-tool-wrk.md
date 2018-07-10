@@ -122,23 +122,23 @@ Modern HTTP benchmarking tool -- wrk
       wrk -i2 -t2 -c100 -d5M https://www.baidu.com --latency
       在5M内，由2个线程并发100去访问baidu网站，并在最后将每两秒的rps依次输出，并绘制成图表。
 
-![alt](https://zhaoguangqiang.github.io/posts/img/wrk_param.png)
-![alt](https://zhaoguangqiang.github.io/posts/img/wrk_result.png)
-![alt](https://zhaoguangqiang.github.io/posts/img/wrk_latency.png)
-![alt](https://zhaoguangqiang.github.io/posts/img/wrk_rps_chart.png)
-![alt](https://zhaoguangqiang.github.io/posts/img/wrk_latency_chart.png)
-![alt](https://zhaoguangqiang.github.io/posts/img/wrk_result_chart.png)
+![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/wrk_param.png)
+![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/wrk_result.png)
+![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/wrk_latency.png)
+![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/wrk_rps_chart.png)
+![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/wrk_latency_chart.png)
+![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/wrk_result_chart.png)
 
 7.wrk架构
 ---
 #### 1) 整体架构:
 
 由与cpu核心数量一致的线程数构成(保证了wrk在高负载情况下的cpu充分使用)，所有线程平均分配并发数，并对应一个event loop，将所需要监控的event添加到异步IO(epoll)中，由异步IO监控event的状态，当event状态变化后，由event loop作为载体取出，并调用相关函数对数据做处理。
-![alt](https://zhaoguangqiang.github.io/posts/img/wrk-architecture-structure.png)
+![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/wrk-architecture-structure.png)
 
 #### 2) lua模块
 
-![alt](https://zhaoguangqiang.github.io/posts/img/wrk-lua.png)
+![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/wrk-lua.png)
 
 wrk的全局属性
 
@@ -232,30 +232,30 @@ Done阶段
 
 `通过将模板取到内存，${}使用该格式作为HTML中要替换的变量，完成匹配替换，重新写入log.html文件中，即可完成日志的生成工作`
 
-8. wrk架构优势
+8.wrk架构优势
 ---
 ##### 1) 阻塞 I/O（blocking IO）
 在IO执行的两个阶段都被block
 
-![blockingIO](https://zhaoguangqiang.github.io/posts/img/blockingIO.png)
+![blockingIO](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/blockingIO.png)
 
 ##### 2) 非阻塞 I/O（nonblocking IO）
 用户进程需要不断的主动询问kernel数据
 
-![nonblockingIO](https://zhaoguangqiang.github.io/posts/img/nonblockingIO.png)
+![nonblockingIO](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/nonblockingIO.png)
 
 ##### 3) I/O 多路复用（IO multiplexing）
 通过一种机制一个进程能同时等待多个文件描述符，而这些文件描述符（套接字描述符）其中的任意一个进入读就绪状态,函数就可以返回
 
-![IOmultiplexing](https://zhaoguangqiang.github.io/posts/img/IOmultiplexing.png)
+![IOmultiplexing](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/IOmultiplexing.png)
 
 ##### 4) 异步 I/O（asynchronous IO）
 通过信号通知操作完成，不存在阻塞状态
 
-![asynchronousIO](https://zhaoguangqiang.github.io/posts/img/asynchronousIO.png)
+![asynchronousIO](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/asynchronousIO.png)
 
 ##### 5) I/O比较
-![IOModel](https://zhaoguangqiang.github.io/posts/img/IOModel.png)
+![IOModel](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/IOModel.png)
 
 ##### 6) 各类异步I/O差异
-![selectPollEpoll](https://zhaoguangqiang.github.io/posts/img/selectPollEpoll.png)
+![selectPollEpoll](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/posts/img/selectPollEpoll.png)
