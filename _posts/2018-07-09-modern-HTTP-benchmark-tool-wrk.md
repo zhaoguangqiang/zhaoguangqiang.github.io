@@ -73,12 +73,12 @@ Modern HTTP benchmarking tool -- wrk
 ---
 
 |             |  并发量 | https  |  POST  | 报告完善度 | 可扩展性 |
-| --------    | -----:  | :----: | :----: |   :----:   |  :----:  |
+| --------    | :-----: | :----: | :----: |   :----:   |  :----:  |
 | http_load   | 中      |   Y    |   N    |    中      |    中    | select
-| webbench    | 高      |   Y    |   N    |    中      |    中    | fork + pipe
-| ab          | 高      |   Y    |   Y    |    极高    |    中    | unknown
-| siege       | 低      |   Y    |   Y    |    高      |    中    | multi thread + poll/select
-| wrk/wrk2    | 极高    |   Y    |   Y    |    高      |    高    | epoll
+| webbench    | 高      |   Y    |   N    |    中      |    中    | fork
+| ab          | 高      |   Y    |   Y    |    中      |    中    | unknown
+| siege       | 低      |   Y    |   Y    |    中      |    中    | multi thread
+| wrk/wrk2    | 高      |   Y    |   Y    |    中      |    高    | epoll
 
 [^_^]: ab单线程,cpu利用不够充分，操作简便易用，报表丰富，并发量高，但无法达到2w+
 
@@ -133,10 +133,12 @@ Modern HTTP benchmarking tool -- wrk
 ---
 #### 1) 整体架构:
 
-由与cpu核心数量一致的线程数构成(保证了wrk在高负载情况下的cpu充分使用)，所有线程平均分配并发数，并对应一个event loop，将所需要监控的event添加到异步IO(epoll)中，由异步IO监控event的状态，当event状态变化后，由event loop作为载体取出，并调用相关函数对数据做处理。
+由与cpu核心数量一致的线程数构成(保证了wrk在高负载情况下的cpu充分使用)，所有线程平均分配并发数，并对应一个eventloop，将所需要监控的event添加到epoll中，由epoll监控event的状态，当event状态变化后，由event loop作为载体取出，并调用相关函数对数据做处理。		
 ![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/wrk-architecture-structure.png)
 
-#### 2) lua模块
+#### 2) ae模块 支持跨平台的多路复用，优先使用epoll,evport,kqueue,如果平台下不存在以上I/O事件通知机制，则采用select
+
+#### 3) lua模块
 
 ![alt](https://raw.githubusercontent.com/zhaoguangqiang/zhaoguangqiang.github.io/master/_posts/img/wrk-lua.png)
 
@@ -217,7 +219,7 @@ Done阶段
 
 `通过编写lua脚本,解析json request (HTTP METHOD, URL, BASE64，POST DATA)，打乱request排序，当connection每次连接，都会依次获取打乱后的request `
 
-#### 3) 日志统计模块
+#### 4) 日志统计模块
 
 完成时统计：`请求量，数据量，错误类型，错误状态`
 
@@ -231,7 +233,7 @@ Done阶段
 
 + `通过现有数据再加工完成的统计`
 
-#### 4) html日志展示模块
+#### 5) html日志展示模块
 
 `通过将模板取到内存，${}使用该格式作为HTML中要替换的变量，完成匹配替换，重新写入log.html文件中，即可完成日志的生成工作`
 
