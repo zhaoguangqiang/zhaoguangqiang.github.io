@@ -85,7 +85,9 @@ user=$(whoami)
 sudo chown $user:$user ~/$kube_config_dir/config
 
 
-#安装网络插件
+#####################
+#网络插件flannel
+#####################
 flannel_yaml=kube-flannel.yml
 flannel_images_script="$images_dir/flannel_images.sh"
 
@@ -108,9 +110,9 @@ kubectl apply -f kube-flannel.yml
 
 
 
-################
-#metrics-server
-################
+######################
+#HPA插件metrics-server
+######################
 
 metrics_dir=metrics-server
 metrics_deploy_path=metrics-server/deploy/1.8+
@@ -153,11 +155,9 @@ sed -i 's/k8s.gcr.io/gcr.azk8s.cn\/google_containers/g' $metrics_server_yaml
 kubectl create -f $metrics_deploy_path
 
 
-
-
-#############
-#dashboard
-#############
+##################
+#界面组件dashboard
+##################
 
 dashboardVer=v1.10.1
 dashboard_dir=dashboard
@@ -170,9 +170,9 @@ else
     mkdir $dashboard_dir
 fi
 
-# 安装dashboard
 cd $dashboard_dir
 
+# 安装dashboard
 if [ ! -f $dashboard_yaml ]; then
     wget https://raw.githubusercontent.com/kubernetes/dashboard/$dashboardVer/src/deploy/recommended/$dashboard_yaml -O $dashboard_yaml
 fi
@@ -211,9 +211,9 @@ kubectl apply -f admin-role.yaml
 
 cd ..
 
-##############
-#ingress-nginx
-##############
+##########################
+#反向代理组件ingress-nginx
+##########################
 
 ingress_dir=ingress
 if [ ! -d $ingress_dir ]; then
@@ -234,8 +234,6 @@ else
     git reset --hard
     git pull
 fi
-
-echo $(pwd)
 
 #修改配置
 grep "nodeSelector:" $ingress_nginx_yaml
