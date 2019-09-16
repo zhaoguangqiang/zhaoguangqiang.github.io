@@ -1,7 +1,25 @@
-#!/bin/bash -x
-kube_install_dir="install/"
+#!/bin/bash
+
 HOSTNAME=$(hostname)
 
+#####################
+#check configuration
+#####################
+
+cat /etc/resolv.conf | grep 127
+if [ $? == 0 ]; then
+    echo "/etc/resolv.conf has lo, this maybe cause coreDNS cannot start"
+    exit 1
+fi
+
+sudo service docker status | grep running
+if [ $? != 0 ]; then
+    echo "docker is not running"
+    exit 1
+fi
+
+#enter installation dir
+kube_install_dir="install/"
 if [ ! -d $kube_install_dir ]; then
     mkdir -p $kube_install_dir
 fi
@@ -12,14 +30,13 @@ cd $kube_install_dir
 #################
 #k8s
 #################
-
 #由于google镜像源被墙，使用国内docker镜像源替代
 genDockerDownloaderFile() {
 downloader_file=$1
 docker_images=$2
 
 cat << EOF > $downloader_file
-#!/bin/bash -x
+#!/bin/bash
 images=(
 EOF
 
@@ -31,8 +48,8 @@ cat << "EOF" >> $downloader_file
 )
 
 for imageName in ${images[@]} ; do
-  if [[ $imageName == gcr.io/* ]]; then
-    proxy_images=${imageName/gcr.io/gcr.azk8s.cn}
+  if [[ $imageName == k8s.gcr.io/* ]]; then
+    proxy_images=${imageName/k8s.gcr.io/gcr.azk8s.cn\/google_containers}
   elif [[ $imageName == quay.io/* ]]; then
     proxy_images=${imageName/quay.io/quay.azk8s.cn}
   else
@@ -51,38 +68,38 @@ if [ ! -d $images_dir ]; then
     mkdir -p $images_dir
 fi
 
-
-#安装master节点
-kube_dockers_path="$images_dir/kube_dockers.sh"
-
-kube_depend_images=$(kubeadm config images list | awk -F/ '{print $2}')
-genDockerDownloaderFile "$kube_dockers_path" "$kube_depend_images"
-if [ $? != 0 ]; then
-    exit 1
+node_status=$(kubectl get node | grep $HOSTNAME | awk '{print $2}')
+if [ $? != 'Ready' ]; then
+    #安装master节点
+    kube_dockers_path="$images_dir/kube_dockers.sh"
+    
+    kube_depend_images=$(kubeadm config images list)
+    genDockerDownloaderFile "$kube_dockers_path" "$kube_depend_images"
+    
+    chmod +x $kube_dockers_path
+    ./$kube_dockers_path
+    if [ $? != 0 ]; then
+        echo "exec $kube_dockers_path failed!"
+        exit 1
+    fi
+    
+    
+    # 关闭swap
+    sudo swapoff -a
+    sudo sed 's/\(^[^#].*swap.*$\)/#\1/' -i /etc/fstab
+    
+    current_ip=$(hostname -I | awk '{print $1}')
+    sudo kubeadm init --apiserver-advertise-address=$current_ip --pod-network-cidr=10.244.0.0/16
+    
+    kube_config_dir=".kube"
+    if [ ! -d  $kube_config_dir ]; then
+        mkdir -p ~/$kube_config_dir
+    fi
+    sudo cp -i /etc/kubernetes/admin.conf ~/$kube_config_dir/config
+    
+    user=$(whoami)
+    sudo chown $user:$user ~/$kube_config_dir/config
 fi
-
-chmod +x $kube_dockers_path
-./$kube_dockers_path
-if [ $? != 0 ]; then
-    exit 1
-fi
-
-
-# 关闭swap
-sudo swapoff -a
-sudo sed 's/\(^[^#].*swap.*$\)/#\1/' -i /etc/fstab
-
-current_ip=$(hostname -I | awk '{print $1}')
-sudo kubeadm init --apiserver-advertise-address=$current_ip --pod-network-cidr=10.244.0.0/16
-
-kube_config_dir=".kube"
-if [ ! -d  $kube_config_dir ]; then
-    mkdir -p ~/$kube_config_dir
-fi
-sudo cp -i /etc/kubernetes/admin.conf ~/$kube_config_dir/config
-
-user=$(whoami)
-sudo chown $user:$user ~/$kube_config_dir/config
 
 
 #####################
@@ -93,6 +110,10 @@ flannel_images_script="$images_dir/flannel_images.sh"
 
 if [ ! -f $flannel_yaml ]; then
     wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/$flannel_yaml
+    if [ $? != 0 ]; then
+        echo "wget $flannel_yaml failed!"
+        exit 1
+    fi
 fi
 
 #下载镜像，不使用该方法，直接替换源
@@ -105,7 +126,11 @@ fi
 #./$flannel_images_script
 
 sed -e 's/quay.io/quay.azk8s.cn/g' -i $flannel_yaml
-kubectl apply -f kube-flannel.yml
+kubectl apply -f $flannel_yaml
+if [ $? != 0 ]; then
+    echo "apply $flannel_yaml failed!"
+    exit 1
+fi
 
 
 
@@ -125,7 +150,11 @@ if [ -d $metrics_dir ]; then
     git pull
     cd -
 else
-    git clone https://github.com/kubernetes-incubator/metrics-server.git
+    git clone https://github.com/kubernetes-incubator/$metrics_dir.git
+    if [ $? != 0 ]; then
+        echo "git clone $metrics_dir.git failed!"
+        exit 1
+    fi
 fi
 
 #安装metrics-server
@@ -152,8 +181,11 @@ fi
 
 sed -i 's/imagePullPolicy: Always/imagePullPolicy: IfNotPresent/g' $metrics_server_yaml
 sed -i 's/k8s.gcr.io/gcr.azk8s.cn\/google_containers/g' $metrics_server_yaml
-kubectl create -f $metrics_deploy_path
-
+kubectl apply -f $metrics_deploy_path
+if [ $? != 0 ]; then
+    echo "apply $metrics_deploy_path failed"
+    exit 1
+fi
 
 ##################
 #界面组件dashboard
@@ -175,13 +207,22 @@ cd $dashboard_dir
 # 安装dashboard
 if [ ! -f $dashboard_yaml ]; then
     wget https://raw.githubusercontent.com/kubernetes/dashboard/$dashboardVer/src/deploy/recommended/$dashboard_yaml -O $dashboard_yaml
+    if [ $? != 0 ]; then
+        echo "wget $dashboard_yaml failed"
+        exit 1
+    fi
 fi
 
 sed -i 's/k8s.gcr.io/gcr.azk8s.cn\/google_containers/g' $dashboard_yaml
 kubectl apply -f $dashboard_yaml
+if [ $? != 0 ]; then
+    echo "apply $dashboard_yaml failed"
+    exit 1
+fi
 
+admin_role_yaml=admin-role.yaml
 # 增加admin
-cat << EOF > admin-role.yaml
+cat << EOF > $admin_role_yaml
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1beta1
 metadata:
@@ -207,7 +248,11 @@ metadata:
     addonmanager.kubernetes.io/mode: Reconcile
 EOF
 
-kubectl apply -f admin-role.yaml
+kubectl apply -f $admin_role_yaml
+if [ $? != 0 ]; then
+    echo "apply $admin_role_yaml failed!"
+    exit 1
+fi
 
 cd ..
 
@@ -227,6 +272,10 @@ ingress_nginx_yaml=deploy/static/mandatory.yaml
 #重置
 if [ ! -d $ingress_nginx_dir ]; then
     git clone https://github.com/kubernetes/$ingress_nginx_dir.git
+    if [ $? != 0 ]; then
+        echo "git clone $ingress_nginx_dir.git failed!"
+        exit 1
+    fi
     cd $ingress_nginx_dir
 else
     cd $ingress_nginx_dir
@@ -251,6 +300,11 @@ fi
 sed -e 's/quay.io/quay.azk8s.cn/g' -i $ingress_nginx_yaml
 
 kubectl apply -f $ingress_nginx_yaml
+if [ $? != 0 ]; then
+    echo "apply $ingress_nginx_yaml failed!"
+    exit 1
+fi
+
 cd ../..
 
 
