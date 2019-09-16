@@ -3,7 +3,7 @@ curl https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | sudo apt-key ad
 sudo sh -c "echo deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main > /etc/apt/sources.list.d/kubernetes.list"
 sudo apt update
 
-sudo apt -y install curl docker.io kubeadm kubectl kubelet
+sudo apt -y install git curl docker.io kubeadm kubectl kubelet
 sudo usermod -aG docker $(whoami)
 sudo systemctl start docker kubelet
 sudo systemctl enable docker kubelet
